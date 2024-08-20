@@ -1,0 +1,58 @@
+def add_time(start, duration, day=None):
+    # Helper function to convert 12-hour format time to 24-hour format
+    def convert_to_24hr(time_str):
+        time, period = time_str.split()
+        hour, minute = map(int, time.split(':'))
+        if period == 'PM' and hour != 12:
+            hour += 12
+        elif period == 'AM' and hour == 12:
+            hour = 0
+        return hour, minute
+
+    # Helper function to convert 24-hour format time to 12-hour format
+    def convert_to_12hr(hour, minute):
+        period = 'AM'
+        if hour >= 12:
+            period = 'PM'
+        if hour > 12:
+            hour -= 12
+        elif hour == 0:
+            hour = 12
+        return f"{hour}:{minute:02d} {period}"
+
+    # Helper function to handle days of the week
+    def get_day_of_week(start_day, days_later):
+        days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        start_day_index = days_of_week.index(start_day.capitalize())
+        result_day_index = (start_day_index + days_later) % 7
+        return days_of_week[result_day_index]
+
+    # Convert start and duration times to minutes
+    start_hour, start_minute = convert_to_24hr(start)
+    duration_hours, duration_minutes = map(int, duration.split(':'))
+    
+    # Total minutes calculation
+    start_total_minutes = start_hour * 60 + start_minute
+    duration_total_minutes = duration_hours * 60 + duration_minutes
+    end_total_minutes = start_total_minutes + duration_total_minutes
+    
+    # Calculate new time in hours and minutes
+    end_hour = (end_total_minutes // 60) % 24
+    end_minute = end_total_minutes % 60
+    days_later = (end_total_minutes // (60 * 24))
+    
+    # Convert end time back to 12-hour format
+    end_time_str = convert_to_12hr(end_hour, end_minute)
+    
+    # Format the final result
+    result = end_time_str
+    
+    if day:
+        result += f", {get_day_of_week(day, days_later)}"
+    
+    if days_later == 1:
+        result += " (next day)"
+    elif days_later > 1:
+        result += f" ({days_later} days later)"
+    
+    return result
